@@ -1,0 +1,20 @@
+{
+  "name": "linkloop",
+  "version": "1.0.0",
+  "description": "platform where fellow developers can connect each other ",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js"
+  },
+  "keywords": [
+    "nodejs",
+    "javascript"
+  ],
+  "author": "Harshith P",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0",
+    "nodemon": "^3.1.10"
+  }
+}
