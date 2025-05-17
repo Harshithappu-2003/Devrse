@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const validator = require('validator');
 
 const userSchema = new mongoose.Schema({
     firstName: {
@@ -11,7 +12,7 @@ const userSchema = new mongoose.Schema({
     lastName: {
         type: String,
         required: true,
-        minLength: 4,
+        minLength: 1,
         maxLength: 30,
         match: [/^[A-Za-z\s]+$/, 'Last name can contain only letters'],
     },
@@ -21,12 +22,20 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true,
         trim: true,
-        match: [/^\S+@\S+\.\S+$/, 'Please enter a valid email address'],
+        validate(value) {
+            if (!validator.isEmail(value)) {
+                throw new Error("Invalid email format");
+            }
+        },
     },
     password: {
         type: String,
         required: true,
-        minlength: [6, 'Password must be at least 6 characters long'],// Do not store plain passwords in production! Use hashing.
+        validate(value) {
+            if(!validator.isStrongPassword(value)) {
+                throw new Error("Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one symbol");
+            }
+        }, // Do not store plain passwords in production! Use hashing.
 
     },
 
@@ -91,6 +100,12 @@ const userSchema = new mongoose.Schema({
     photoUrl: {
         type: String,
         default: "https://www.pnrao.com/wp-content/uploads/2023/06/dummy-user-male.jpg",
+        validate(value) {
+            if (!validator.isURL(value)) {
+                throw new Error("Invalid URL format");
+            }
+        },
+        match: [/^https?:\/\/.*\.(jpg|jpeg|png|gif)$/, 'Please enter a valid image URL'],
         required: false
     },
 
@@ -100,7 +115,7 @@ const userSchema = new mongoose.Schema({
         maxlength: 300,
         required: false,
     },
-    
+
     skills: {
         type: [String],
         validate: {
