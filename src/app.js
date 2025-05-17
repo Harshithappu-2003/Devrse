@@ -92,22 +92,66 @@ app.delete("/user", async (req, res) => {
 })
 
 // Update data of the user
-app.patch("/user", async (req, res) => {
-    const userId = req.body.userId;
+app.patch("/user/:userId", async (req, res) => {
+    const userId = req.params.userId;
     const data = req.body;
-    console.log(data);
-    try {
-        const user = await User.findByIdAndUpdate({ _id: userId }, data, {
-            returnDocument: "after",
-            runValidators: true,
 
-        });
-        console.log(user);
-        res.send("User updated successfully");
+    try {
+    const ALLOWED_UPDATES = ["photoUrl", "password", "age", "skills", "about", "gender"];
+    const isUpdateAllowed = Object.keys(data).every((k) => ALLOWED_UPDATES.includes(k));
+
+    if (!isUpdateAllowed) {
+        return res.status(400).send("Invalid update fields");
+    }
+
+    if(data?.skills.length > 10){
+        throw new Error("Skills should not exceed 10");
+    }
+    
+    const user = await User.findByIdAndUpdate(userId, data, {
+        new: true,
+        runValidators: true,
+    });
+
+    if (!user) {
+        return res.status(404).send("User not found");
+    }
+
+    res.send("User updated successfully");
     } catch (err) {
-        res.status(400).send("UPDATE FAILED: " + err.message);
+    res.status(400).send("UPDATE FAILED: " + err.message);
     }
 });
+
+// app.patch("/user", async (req, res) => {
+//     const userId = req.body.userId;
+//     const data = req.body;
+
+
+
+//     console.log(data);
+//     try {
+//         const ALLOWED_UPDATES = ["photoUrl", "password", "age", "skills", "about", "gender"];
+
+//         const isUpdateAllowed = Object.keys(data).every((k) => {
+//             return ALLOWED_UPDATES.includes(k);
+//         });
+        
+//         if(!isUpdateAllowed) {
+//             throw new Error("Invalid update fields");
+//         }
+
+//         const user = await User.findByIdAndUpdate({ _id: userId }, data, {
+//             returnDocument: "after",
+//             runValidators: true,
+
+//         });
+//         console.log(user);
+//         res.send("User updated successfully");
+//     } catch (err) {
+//         res.status(400).send("UPDATE FAILED: " + err.message);
+//     }
+// });
 
 
 
