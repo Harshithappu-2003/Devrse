@@ -33,28 +33,80 @@ const express = require('express');
 const connectDB = require("./config/database");
 const User = require("./models/user");
 const user = require('./models/user');
+const {validateSignUpData} = require("./utils/validation");
+const bcrypt = require("bcrypt");
+
 const app = express();
 
 // Middleware to parse JSON
 app.use(express.json());
 
 app.post("/signup", async (req, res) => {
-    // Creating a new instance of the User model
-const user = new User(req.body);
 
-try {
+    try {
+    // Validation of data
+    validateSignUpData(req);
+
+    const {firstName, lastName, email, password, phone, address, city, state, country, zip, age, skills } = req.body;
+
+
+    // Encrypting password
+    const passwordHash = await bcrypt.hash(password, 10);
+    console.log(passwordHash);
+
+
+    // Saving the user to the database
+
+    // Creating a new instance of the User model
+    const user = new User({
+        firstName,
+        lastName,
+        email,
+        password: passwordHash,
+        phone,
+        address,
+        city,
+        state,
+        country,
+        zip,
+        age,
+        skills
+});
+
+
     await user.save();
     res.send('User Added successfully!');
 } catch (err) {
-    res.status(400).send("Error saving the user:" + err.message);
+    res.status(400).send("ERROR :" + err.message);
 }
+});
+
+app.post("/login", async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        const user = await User.findOne({ email: email });
+        if (!user) {
+            throw new Error("Invalid Credentials");
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+
+        if (isPasswordValid) {
+            res.send("Login successful!!!");
+        } else {
+            throw new Error("Invalid Credentials");
+        }
+
+    } catch (err) {
+        res.status(400).send("ERROR: " + err.message);
+    }
 });
 
 
 //Get user by email
 app.get("/user", async (req, res) => {
     const email = req.body.email;
-
     try {
         console.log(email);
         const user = await User.findOne({ email: email }).exec();
@@ -107,7 +159,7 @@ app.patch("/user/:userId", async (req, res) => {
     if(data?.skills.length > 10){
         throw new Error("Skills should not exceed 10");
     }
-    
+
     const user = await User.findByIdAndUpdate(userId, data, {
         new: true,
         runValidators: true,
@@ -123,13 +175,55 @@ app.patch("/user/:userId", async (req, res) => {
     }
 });
 
-// app.patch("/user", async (req, res) => {
-//     const userId = req.body.userId;
-//     const data = req.body;
+
+
+connectDB().then(() => {
+    console.log("MongoDB connected successfully");
+    app.listen(3000, () => {
+        console.log('Server is running on port 3000....');
+    });
+}).catch((err) => {
+    console.log("MongoDB connection failed", err);
+});
 
 
 
-//     console.log(data);
+
+
+
+
+
+    // creating a new user instance of the model
+    // const user = new User({
+    //   firstName : "Ms ",
+    //   lastName : "dhoni",
+    //   address : "123, 1st cross, 2nd main",
+    //   email : "msdhoni@gmail.com",
+    //   password : "Msdhoni@123", 
+    //   phone : "7204673504",
+    //   age: 44,
+    //   zip: "560001",
+    //   country: "India",
+    //   state: "Jharkhand",
+    //   city: "Ranchi"
+    // });
+
+
+
+
+    // app.patch("/user", async (req, res) => {
+    //     const userId = req.body.userId;
+    //     const data = req.body;
+    //     try{
+    //         await user.save();
+    //         res.send("User created successfully");
+    //     } catch (err) {
+    //         res.status(500).send("Error creating user: " + err.message);
+    //     }
+
+
+
+    //     console.log(data);
 //     try {
 //         const ALLOWED_UPDATES = ["photoUrl", "password", "age", "skills", "about", "gender"];
 
@@ -152,37 +246,3 @@ app.patch("/user/:userId", async (req, res) => {
 //         res.status(400).send("UPDATE FAILED: " + err.message);
 //     }
 // });
-
-
-
-connectDB().then(() => {
-    console.log("MongoDB connected successfully");
-    app.listen(3000, () => {
-        console.log('Server is running on port 3000....');
-    });
-}).catch((err) => {
-    console.log("MongoDB connection failed", err);
-});
-
-    // creating a new user instance of the model
-    // const user = new User({
-    //   firstName : "Ms ",
-    //   lastName : "dhoni",
-    //   address : "123, 1st cross, 2nd main",
-    //   email : "msdhoni@gmail.com",
-    //   password : "Msdhoni@123", 
-    //   phone : "7204673504",
-    //   age: 44,
-    //   zip: "560001",
-    //   country: "India",
-    //   state: "Jharkhand",
-    //   city: "Ranchi"
-    // });
-
-
-    // try{
-    //     await user.save();
-    //     res.send("User created successfully");
-    // } catch (err) {
-    //     res.status(500).send("Error creating user: " + err.message);
-    // }

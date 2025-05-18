@@ -28,7 +28,9 @@ const userSchema = new mongoose.Schema({
             }
         },
     },
-    password: {
+    password: { // always hash passwords before storing them
+        // Use a library like bcrypt to hash passwords before saving them
+        // and compare them during login
         type: String,
         required: true,
         validate(value) {
