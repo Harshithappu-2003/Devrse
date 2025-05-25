@@ -137,8 +137,6 @@ app.post("/sendConnectionRequest", userAuth, async (req, res) => {
 })
 
 
-
-
 connectDB().then(() => {
     console.log("MongoDB connected successfully");
     app.listen(3000, () => {
