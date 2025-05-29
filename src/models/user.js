@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema({
     firstName: {
         type: String,
         required: true,
+        index: true, // Indexing for faster search
         minLength: 4,
         maxLength: 30,
         match: [/^[A-Za-z\s]+$/, 'First name can contain only letters'],
@@ -91,12 +92,16 @@ const userSchema = new mongoose.Schema({
     },
 
     gender:{
-        validate(value) {
-            const genders = ["male", "female", "others"];
-            if (!genders.includes(value)) {
-                throw new Error("Invalid gender");
-            }
+        enum: {
+            values:["male", "female", "others"],
+            message: `{VALUE} is not a valid gender type`
         },
+        // validate(value) {
+        //     const genders = ["male", "female", "others"];
+        //     if (!genders.includes(value)) {
+        //         throw new Error("Invalid gender");
+        //     }
+        // },
         type: String,
         required: false
     },
@@ -134,6 +139,10 @@ const userSchema = new mongoose.Schema({
         timestamps: true,
     }
 );
+
+
+userSchema.index({firstName: 1});
+userSchema.index({gender: 1});
 
 userSchema.methods.getJWT = async function () {
     const user = this;
