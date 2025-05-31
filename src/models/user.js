@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema({
     firstName: {
         type: String,
         required: true,
-        index: true, // Indexing for faster search
+        // index: true, // Indexing for faster search
         minLength: 4,
         maxLength: 30,
         match: [/^[A-Za-z\s]+$/, 'First name can contain only letters'],
