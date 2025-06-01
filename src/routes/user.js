@@ -54,6 +54,63 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
     }
 });
 
+// Get all the users in the system
+userRouter.get("/feed", userAuth, async (req, res) => {
+    try {
+
+        // user should not see their own profile in the feed
+        // so we filter out the logged-in user
+        // and only return the users who are not connected to the logged-in user
+        // and who have not sent a connection request to the logged-in user
+        // and who have not received a connection request from the logged-in user
+        // User should see all the user cards except
+        // 1. his own card
+        // 2. his connections
+        // 3. ignored people
+        // 4. already sent the connection request
+
+        // Example: Rahul = [Mark, Donald, MS Dhoni, Virat]
+        // R → Akshay → rejected   R → Elon → Accepted
+        // R → Donald → ignored   R → MS Dhoni → interested   R → Virat Kohli → accepted   R → Sachin Tendulkar → ignored
+
+        const loggedInUser = req.user;
+
+        const page = parseInt(req.query.page) || 1;
+        let limit = parseInt(req.query.limit) || 10;
+        limit = limit > 50 ? 50 : limit; // Limit to a maximum of 50 users per page
+
+        // Pagination logic
+        const skip = (page - 1) * limit;
+
+
+        // Find all connection requests (sent + received) involving the logged-in user
+        const connectionRequests = await ConnectionRequest.find({
+            $or: [
+                { fromUserId: loggedInUser._id },
+                { toUserId: loggedInUser._id }
+            ]
+        }).select('fromUserId toUserId status');
+
+        const hideUsersFromFeed = new Set();
+        connectionRequests.forEach((req) => {
+        hideUsersFromFeed.add(req.fromUserId.toString());
+        hideUsersFromFeed.add(req.toUserId.toString());
+        });
+
+        const users = await User.find({
+
+        $and:[
+            { _id: { $nin: Array.from(hideUsersFromFeed) } } , // Exclude users in the hide list
+            { _id: { $ne: loggedInUser._id } } // Exclude the logged-in user
+        ]
+    }).select(USER_SAFE_DATA).skip(skip).limit(limit);
+
+        res.send(users);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+});
+
 
 
 module.exports = userRouter;

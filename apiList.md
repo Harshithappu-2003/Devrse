@@ -25,6 +25,8 @@
 
 - GET /user/requests/received
 - GET /user/connections
+
+- feed api is most imp api this api will bring data of other users
 - GET /user/feed - Gets you the profiles of other users on platform
 
 Status: ignored, interested, accepted, rejected
