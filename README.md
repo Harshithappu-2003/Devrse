@@ -4,9 +4,6 @@
 
 Devrse is a **developer networking platform** where tech enthusiasts can **connect, chat, and collaborate** based on mutual interest. Inspired by Tinder, it lets users **swipe left to ignore and right to connect**, with real-time chat features powered by **Socket.io**.
 
-🚀 **Live Demo**: [https://devrse-remo.vercel.app](https://devrse-remo.vercel.app)  
-📌 **GitHub Repository**: [Devrse Repo](https://github.com/sharadindudas/devrse)
-
 ## ✨ Features
 
 ✅ **JWT & Cookie-based Authentication** – Secure login and signup.  
@@ -35,8 +32,8 @@ devrse/
 ### 1️⃣ Clone the repository
 
 ```bash
-git clone https://github.com/sharadindudas/devrse.git
-cd devrse
+git clone https://github.com/Harshithappu-2003/Devrse.git
+cd Devrse
 ```
 
 ### 2️⃣ Install dependencies
@@ -81,5 +78,5 @@ Contributions are welcome! Feel free to fork the repository and submit pull requ
 
 ## 📫 Contact
 
-👨‍💻 **Author:** [Sharadindu Das](https://github.com/sharadindudas)  
-📧 **Email:** sharadindudas774@gmail.com
+👨‍💻 **Author:** [Harshithappu](https://github.com/Harshithappu-2003)  
+📧 **GitHub:** [@Harshithappu-2003](https://github.com/Harshithappu-2003)
